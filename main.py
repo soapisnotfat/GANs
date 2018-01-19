@@ -1,7 +1,8 @@
 import argparse
 import os
-from solver import Solver
-from data_loader import get_loader
+from GAN.solver import GANSolver
+from DCGAN.solver import DCGANSolver
+from dataset.data_loader import get_celea_loader
 from torch.backends import cudnn
 
 cudnn.benchmark = True
@@ -15,7 +16,7 @@ parser.add_argument('--d_conv_dim', type=int, default=64)
 
 # training hyper-parameters
 parser.add_argument('--num_epochs', type=int, default=20)
-parser.add_argument('--batch_size', type=int, default=313)
+parser.add_argument('--batch_size', type=int, default=512)
 parser.add_argument('--sample_size', type=int, default=100)
 parser.add_argument('--num_workers', type=int, default=4)
 parser.add_argument('--lr', type=float, default=0.0002, help='learning rate')
@@ -26,17 +27,19 @@ parser.add_argument('--beta2', type=float, default=0.999)  # momentum2 in Adam
 parser.add_argument('--mode', type=str, default='train', help='train or sample')
 parser.add_argument('--model_path', type=str, default='./models')  # models saving directory
 parser.add_argument('--sample_path', type=str, default='./samples')  # generated samples directory
-parser.add_argument('--image_path', type=str, default='./CelebA/128_crop')  # dataset directory
+parser.add_argument('--image_path', type=str, default='./dataset/CelebA/128_crop')  # dataset directory
 parser.add_argument('--log_step', type=int, default=10)
-parser.add_argument('--sample_step', type=int, default=500)
+parser.add_argument('--sample_step', type=int, default=300)
 parsers = parser.parse_args()
 print(parsers)
 
 
 def main(config):
-    data_loader = get_loader(image_path=config.image_path, image_size=config.image_size,
-                             batch_size=config.batch_size, num_workers=config.num_workers)
-    solver = Solver(config, data_loader)
+    data_loader = get_celea_loader(image_path=config.image_path, image_size=config.image_size,
+                                   batch_size=config.batch_size, num_workers=config.num_workers)
+
+    # solver = GANSolver(config, data_loader)
+    solver = DCGANSolver(config, data_loader)
 
     # Create directories if not exist
     if not os.path.exists(config.model_path):

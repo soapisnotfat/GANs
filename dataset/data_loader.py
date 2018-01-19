@@ -28,7 +28,7 @@ class ImageFolder(data.Dataset):
         return len(self.image_paths)
 
     
-def get_loader(image_path, image_size, batch_size, num_workers=2):
+def get_celea_loader(image_path, image_size, batch_size, num_workers=4):
     """Builds and returns Dataloader."""
     
     transform = transforms.Compose([transforms.Resize(image_size), transforms.ToTensor(),

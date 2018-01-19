@@ -32,10 +32,10 @@ class Generator(nn.Module):
     def forward(self, x):
         x = x.view(x.size(0), x.size(1), 1, 1)              # If image_size is 64, output shape is as below.
         x = self.fc(x)                                      # (?, 512, 4, 4)
-        x = func.leaky_relu(self.de_conv_1(x), 0.05)         # (?, 256, 8, 8)
-        x = func.leaky_relu(self.de_conv_2(x), 0.05)         # (?, 128, 16, 16)
-        x = func.leaky_relu(self.de_conv_3(x), 0.05)         # (?, 64, 32, 32)
-        x = func.tanh(self.de_conv_4(x))                     # (?, 3, 64, 64)
+        x = func.leaky_relu(self.de_conv_1(x), 0.05)        # (?, 256, 8, 8)
+        x = func.leaky_relu(self.de_conv_2(x), 0.05)        # (?, 128, 16, 16)
+        x = func.leaky_relu(self.de_conv_3(x), 0.05)        # (?, 64, 32, 32)
+        x = func.tanh(self.de_conv_4(x))                    # (?, 3, 64, 64)
         return x
 
 

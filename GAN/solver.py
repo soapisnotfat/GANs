@@ -3,12 +3,12 @@ import torchvision
 import os
 from torch import optim
 from torch.autograd import Variable
-from model import Discriminator
-from model import Generator
+from GAN.model import Discriminator
+from GAN.model import Generator
 from progress_bar import progress_bar
 
 
-class Solver(object):
+class GANSolver(object):
     def __init__(self, config, data_loader):
         self.generator = None
         self.discriminator = None
@@ -75,8 +75,8 @@ class Solver(object):
         return self.to_variable(torch.randn(self.batch_size, self.z_dim))
 
     def save_model(self, epoch):
-        g_path = os.path.join(self.model_path, 'generator-%d.pkl' % (epoch + 1))
-        d_path = os.path.join(self.model_path, 'discriminator-%d.pkl' % (epoch + 1))
+        g_path = os.path.join(self.model_path, 'GAN-generator-%d.pkl' % (epoch + 1))
+        d_path = os.path.join(self.model_path, 'GAN-discriminator-%d.pkl' % (epoch + 1))
         torch.save(self.generator.state_dict(), g_path)
         torch.save(self.discriminator.state_dict(), d_path)
 
@@ -84,7 +84,7 @@ class Solver(object):
         if (step + 1) % self.sample_step == 0:
             fake_images = self.generator(self.fixed_noise())
             torchvision.utils.save_image(self.de_normalize(fake_images.data),
-                                         os.path.join(self.sample_path, 'fake_samples-%d-%d.png' % (epoch + 1, step + 1)))
+                                         os.path.join(self.sample_path, 'GAN-fake_samples-%d-%d.png' % (epoch + 1, step + 1)))
 
     def train(self):
         """Train generator and discriminator."""
