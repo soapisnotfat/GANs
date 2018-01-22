@@ -1,8 +1,8 @@
 # IDE
 *.idea/
 */CelebA/
-models/
-samples/
+Models/
+Samples/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -44,10 +44,10 @@ class Discriminator(nn.Module):
     def __init__(self, image_size=128, conv_dim=64):
         super(Discriminator, self).__init__()
         self.conv_1 = conv(in_channels=3, out_channels=conv_dim, kernel_size=4, bn=False)
-        self.conv_2 = conv(in_channels=conv_dim, out_channels=conv_dim*2, kernel_size=4)
-        self.conv_3 = conv(in_channels=conv_dim*2, out_channels=conv_dim*4, kernel_size=4)
-        self.conv_4 = conv(in_channels=conv_dim*4, out_channels=conv_dim*8, kernel_size=4)
-        self.fc = conv(in_channels=conv_dim*8, out_channels=1, kernel_size=int(image_size/16), stride=1, padding=0, bn=False)
+        self.conv_2 = conv(in_channels=conv_dim, out_channels=conv_dim * 2, kernel_size=4)
+        self.conv_3 = conv(in_channels=conv_dim * 2, out_channels=conv_dim * 4, kernel_size=4)
+        self.conv_4 = conv(in_channels=conv_dim * 4, out_channels=conv_dim * 8, kernel_size=4)
+        self.fc = conv(in_channels=conv_dim * 8, out_channels=1, kernel_size=int(image_size / 16), stride=1, padding=0, bn=False)
         
     def forward(self, x):                               # If image_size is 64, output shape is as below.
         x = func.leaky_relu(self.conv_1(x), 0.05)       # (?, 64, 32, 32)

@@ -88,7 +88,6 @@ class GANSolver(object):
 
     def train(self):
         """Train generator and discriminator."""
-
         total_step = len(self.data_loader)
         for epoch in range(self.num_epochs):
             print("===> Epoch [%d/%d]" % (epoch + 1, self.num_epochs))
