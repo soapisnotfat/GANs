@@ -17,7 +17,7 @@ parser.add_argument('--d_conv_dim', type=int, default=64)
 
 # training hyper-parameters
 parser.add_argument('--num_epochs', type=int, default=20)
-parser.add_argument('--batch_size', type=int, default=128)
+parser.add_argument('--batch_size', type=int, default=64)
 parser.add_argument('--sample_size', type=int, default=100)
 parser.add_argument('--num_workers', type=int, default=4)
 parser.add_argument('--lr', type=float, default=0.00005, help='learning rate')

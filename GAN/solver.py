@@ -5,7 +5,7 @@ from torch import optim
 from torch.autograd import Variable
 from GAN.model import Discriminator
 from GAN.model import Generator
-from progress_bar import progress_bar
+from misc import progress_bar
 
 
 class GANSolver(object):

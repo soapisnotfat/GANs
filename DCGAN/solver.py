@@ -6,7 +6,7 @@ from torch import optim
 from torch.autograd import Variable
 from DCGAN.model import Discriminator
 from DCGAN.model import Generator
-from progress_bar import progress_bar
+from misc import progress_bar
 
 
 class DCGANSolver(object):
@@ -36,8 +36,8 @@ class DCGANSolver(object):
         """Build generator and discriminator."""
         self.generator = Generator(z_dim=self.z_dim, image_size=self.image_size, conv_dim=self.g_conv_dim)
         self.discriminator = Discriminator(image_size=self.image_size, conv_dim=self.d_conv_dim)
-        # self.generator.weight_init(mean=0.0, std=0.02)
-        # self.discriminator.weight_init(mean=0.0, std=0.02)
+        self.generator.weight_init(mean=0.0, std=0.02)
+        self.discriminator.weight_init(mean=0.0, std=0.02)
         self.g_optimizer = optim.Adam(self.generator.parameters(), self.lr, [self.beta1, self.beta2])
         self.d_optimizer = optim.Adam(self.discriminator.parameters(), self.lr, [self.beta1, self.beta2])
 

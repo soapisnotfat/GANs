@@ -5,7 +5,7 @@ from torch import optim
 from torch.autograd import Variable
 from BEGAN.model import D
 from BEGAN.model import Generator
-from progress_bar import progress_bar
+from misc import progress_bar
 
 
 class BEGANSolver(object):
@@ -38,8 +38,8 @@ class BEGANSolver(object):
         """Build generator and discriminator."""
         self.generator = Generator(z_dim=self.z_dim, conv_dim=self.g_conv_dim)
         self.discriminator = D(d_conv_dim=self.d_conv_dim, g_conv_dim=self.g_conv_dim, z_dim=self.z_dim)
-        # self.generator.weight_init(mean=0.0, std=0.02)
-        # self.discriminator.weight_init(mean=0.0, std=0.02)
+        self.generator.weight_init(mean=0.0, std=0.02)
+        self.discriminator.weight_init(mean=0.0, std=0.02)
         self.g_optimizer = optim.Adam(self.generator.parameters(), self.lr, [self.beta1, self.beta2])
         self.d_optimizer = optim.Adam(self.discriminator.parameters(), self.lr, [self.beta1, self.beta2])
 

@@ -18,12 +18,18 @@ def de_conv_block(in_dim, out_dim):
                          nn.Upsample(scale_factor=2))
 
 
+def normal_init(m, mean, std):
+    if isinstance(m, nn.ConvTranspose2d) or isinstance(m, nn.Conv2d):
+        m.weight.data.normal_(mean, std)
+        m.bias.data.zero_()
+
+
 class Generator(nn.Module):
-    def __init__(self, conv_dim, z_dim):
+    def __init__(self, conv_dim, image_size, z_dim):
         super(Generator, self).__init__()
 
         # 1
-        self.decode = nn.ConvTranspose2d(z_dim, conv_dim, kernel_size=4, stride=1, padding=0)
+        self.decode = nn.ConvTranspose2d(z_dim, conv_dim, kernel_size=image_size // 16, stride=1, padding=0)
         # 8
         self.de_conv6 = de_conv_block(conv_dim, conv_dim)
         # 16
@@ -42,6 +48,11 @@ class Generator(nn.Module):
                                       nn.Conv2d(in_channels=conv_dim, out_channels=3, kernel_size=3, stride=1, padding=1),
                                       nn.Tanh())
 
+    # weight_init
+    def weight_init(self, mean, std):
+        for m in self._modules:
+            normal_init(self._modules[m], mean, std)
+
     def forward(self, x):
         x = self.decode(x)
         x = self.de_conv6(x)
@@ -54,7 +65,7 @@ class Generator(nn.Module):
 
 
 class Discriminator(nn.Module):
-    def __init__(self, conv_dim, z_dim):
+    def __init__(self, conv_dim, image_size, z_dim):
         super(Discriminator, self).__init__()
 
         # 256
@@ -70,8 +81,13 @@ class Discriminator(nn.Module):
         # 16
         # self.conv6 = conv_block(conv_dim*4, conv_dim*4)
         # 8
-        self.encode = nn.Conv2d(conv_dim * 4, z_dim, kernel_size=4, stride=1, padding=0)
+        self.encode = nn.Conv2d(conv_dim * 4, z_dim, kernel_size=image_size // 16, stride=1, padding=0)
         # 1
+
+    # weight_init
+    def weight_init(self, mean, std):
+        for m in self._modules:
+            normal_init(self._modules[m], mean, std)
 
     def forward(self, x):
         x = self.conv1(x)
@@ -85,13 +101,18 @@ class Discriminator(nn.Module):
 
 
 class D(nn.Module):
-    def __init__(self, d_conv_dim, g_conv_dim, z_dim):
+    def __init__(self, d_conv_dim, g_conv_dim, image_size, z_dim):
         super(D, self).__init__()
 
-        enc = Discriminator(d_conv_dim, z_dim)
-        dec = Generator(g_conv_dim, z_dim)
+        enc = Discriminator(d_conv_dim, image_size, z_dim)
+        dec = Generator(g_conv_dim, image_size, z_dim)
         self.discriminator = enc
         self.generator = dec
+
+    # weight_init
+    def weight_init(self, mean, std):
+        self.discriminator.weight_init(mean, std)
+        self.generator.weight_init(mean, std)
 
     def forward(self, x):
         h = self.discriminator(x)
