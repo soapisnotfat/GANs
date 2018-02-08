@@ -61,8 +61,8 @@ class DCGANSolver(object):
 
     def reset_grad(self):
         """Zero the gradient buffers."""
-        self.discriminator.zero_grad()
-        self.generator.zero_grad()
+        self.d_optimizer.zero_grad()
+        self.g_optimizer.zero_grad()
 
     @staticmethod
     def de_normalize(x):
