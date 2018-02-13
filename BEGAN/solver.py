@@ -3,6 +3,7 @@ import torchvision
 import os
 from torch import optim
 from torch.autograd import Variable
+from torch.backends import cudnn
 from BEGAN.model import D
 from BEGAN.model import Generator
 from misc import progress_bar
@@ -46,6 +47,7 @@ class BEGANSolver(object):
         if torch.cuda.is_available():
             self.generator.cuda()
             self.discriminator.cuda()
+            cudnn.benchmark = True
 
     @staticmethod
     def to_variable(x):

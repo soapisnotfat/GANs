@@ -4,6 +4,7 @@ import torchvision
 import os
 from torch import optim
 from torch.autograd import Variable
+from torch.backends import cudnn
 from DCGAN.model import Discriminator
 from DCGAN.model import Generator
 from misc import progress_bar
@@ -44,6 +45,7 @@ class DCGANSolver(object):
         if torch.cuda.is_available():
             self.generator.cuda()
             self.discriminator.cuda()
+            cudnn.benchmark = True
 
     @staticmethod
     def to_variable(x):

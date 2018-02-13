@@ -3,6 +3,7 @@ import torchvision
 import os
 from torch import optim
 from torch.autograd import Variable
+from torch.backends import cudnn
 from GAN.model import Discriminator
 from GAN.model import Generator
 from misc import progress_bar
@@ -41,6 +42,7 @@ class GANSolver(object):
         if torch.cuda.is_available():
             self.generator.cuda()
             self.discriminator.cuda()
+            cudnn.benchmark = True
 
     @staticmethod
     def to_variable(x):
