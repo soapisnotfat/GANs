@@ -2,7 +2,6 @@ import torch
 import torchvision
 import os
 from torch import optim
-from torch.autograd import Variable
 from torch.backends import cudnn
 from GAN.model import Discriminator
 from GAN.model import Generator
@@ -15,6 +14,8 @@ class GANSolver(object):
         self.discriminator = None
         self.g_optimizer = None
         self.d_optimizer = None
+        self.cuda = torch.cuda.is_available()
+        self.device = torch.device('cuda' if self.cuda else 'cpu')
         self.g_conv_dim = config.g_conv_dim
         self.d_conv_dim = config.d_conv_dim
         self.z_dim = config.z_dim
@@ -34,27 +35,18 @@ class GANSolver(object):
 
     def build_model(self):
         """Build generator and discriminator."""
-        self.generator = Generator(z_dim=self.z_dim, image_size=self.image_size, conv_dim=self.g_conv_dim)
-        self.discriminator = Discriminator(image_size=self.image_size, conv_dim=self.d_conv_dim)
+        self.generator = Generator(z_dim=self.z_dim, image_size=self.image_size, conv_dim=self.g_conv_dim)\
+            .to(self.device)
+        self.discriminator = Discriminator(image_size=self.image_size, conv_dim=self.d_conv_dim).to(self.device)
         self.g_optimizer = optim.Adam(self.generator.parameters(), self.lr, [self.beta1, self.beta2])
         self.d_optimizer = optim.Adam(self.discriminator.parameters(), self.lr, [self.beta1, self.beta2])
 
-        if torch.cuda.is_available():
-            self.generator.cuda()
-            self.discriminator.cuda()
+        if self.cuda:
             cudnn.benchmark = True
 
-    @staticmethod
-    def to_variable(x):
-        """Convert tensor to variable."""
-        if torch.cuda.is_available():
-            x = x.cuda()
-        return Variable(x)
-
-    @staticmethod
-    def to_data(x):
+    def to_data(self, x):
         """Convert variable to tensor."""
-        if torch.cuda.is_available():
+        if self.cuda:
             x = x.cpu()
         return x.data
 
@@ -74,7 +66,7 @@ class GANSolver(object):
         return torch.mean((output - target) ** 2)
 
     def fixed_noise(self):
-        return self.to_variable(torch.randn(self.batch_size, self.z_dim))
+        return self.torch.randn(self.batch_size, self.z_dim, device=self.device)
 
     def save_model(self, epoch):
         g_path = os.path.join(self.model_path, 'GAN-generator-%d.pkl' % (epoch + 1))
@@ -96,9 +88,9 @@ class GANSolver(object):
             for i, images in enumerate(self.data_loader):
 
                 # ===================== Train D ===================== #
-                images = self.to_variable(images)
+                images = images.to(self.device)
                 batch_size = images.size(0)
-                noise = self.to_variable(torch.randn(batch_size, self.z_dim))
+                noise = torch.randn(batch_size, self.z_dim, device=self.device)
 
                 # Train D to recognize real images as real.
                 outputs = self.discriminator(images)
@@ -116,7 +108,7 @@ class GANSolver(object):
                 self.d_optimizer.step()
 
                 # ===================== Train G =====================#
-                noise = self.to_variable(torch.randn(batch_size, self.z_dim))
+                noise = torch.randn(batch_size, self.z_dim, device=self.device)
 
                 # Train G so that D recognizes G(z) as real.
                 fake_images = self.generator(noise)
@@ -129,7 +121,8 @@ class GANSolver(object):
                 self.g_optimizer.step()
 
                 # print the log info via progress bar
-                progress_bar(i, total_step, 'd_real_loss: %.4f | d_fake_loss: %.4f | g_loss: %.4f' % (real_loss.data[0], fake_loss.data[0], g_loss.data[0]))
+                progress_bar(i, total_step, 'd_real_loss: %.4f | d_fake_loss: %.4f | g_loss: %.4f'
+                             % (real_loss.item(), fake_loss.item(), g_loss.item()))
 
                 # save the sampled images
                 self.save_fakes(step=i, epoch=epoch)
@@ -147,8 +140,9 @@ class GANSolver(object):
         self.discriminator.eval()
 
         # Sample the images
-        noise = self.to_variable(torch.randn(self.sample_size, self.z_dim))
-        fake_images = self.generator(noise)
+        noise = torch.randn(self.sample_size, self.z_dim, device=self.device)
+        with torch.no_grad():
+            fake_images = self.generator(noise)
         sample_path = os.path.join(self.sample_path, 'fake_samples-final.png')
         torchvision.utils.save_image(self.de_normalize(fake_images.data), sample_path, nrow=12)
         print("Saved sampled images to '%s'" % sample_path)
